@@ -9,17 +9,21 @@ import { generateNoteFilename, toSafeFilename } from './gm-drums.js';
 
 /**
  * Copy header information (tempos, time signatures) from source to new MIDI
+ * Handles PPQ differences by scaling tick values proportionally
  * @param {Object} sourceMidi - Original parsed MIDI object
  * @param {Object} newMidi - New MIDI object to copy header info to
  */
 function copyHeaderInfo(sourceMidi, newMidi) {
-  // Copy all tempo changes
-  // Clear default tempo first, then add all from source
+  const sourcePPQ = sourceMidi.header.ppq;
+  const newPPQ = newMidi.header.ppq; // Always 480 in @tonejs/midi
+  const tickScale = newPPQ / sourcePPQ;
+  
+  // Copy all tempo changes with scaled ticks
   newMidi.header.tempos = [];
   sourceMidi.header.tempos.forEach(tempo => {
     newMidi.header.tempos.push({
       bpm: tempo.bpm,
-      ticks: tempo.ticks
+      ticks: Math.round(tempo.ticks * tickScale)
     });
   });
   
@@ -28,21 +32,21 @@ function copyHeaderInfo(sourceMidi, newMidi) {
     newMidi.header.tempos.push({ bpm: 120, ticks: 0 });
   }
   
-  // Copy all time signatures
+  // Copy all time signatures with scaled ticks
   sourceMidi.header.timeSignatures.forEach(ts => {
     newMidi.header.timeSignatures.push({
-      ticks: ts.ticks,
+      ticks: Math.round(ts.ticks * tickScale),
       timeSignature: ts.timeSignature || [4, 4]
     });
   });
   
-  // Copy key signatures if present
+  // Copy key signatures if present, with scaled ticks
   if (sourceMidi.header.keySignatures) {
     sourceMidi.header.keySignatures.forEach(ks => {
       newMidi.header.keySignatures.push({
         key: ks.key,
         scale: ks.scale,
-        ticks: ks.ticks
+        ticks: Math.round(ks.ticks * tickScale)
       });
     });
   }
