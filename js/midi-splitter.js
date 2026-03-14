@@ -8,6 +8,50 @@
 import { generateNoteFilename, toSafeFilename } from './gm-drums.js';
 
 /**
+ * Copy header information (tempos, time signatures) from source to new MIDI
+ * @param {Object} sourceMidi - Original parsed MIDI object
+ * @param {Object} newMidi - New MIDI object to copy header info to
+ */
+function copyHeaderInfo(sourceMidi, newMidi) {
+  // Copy all tempo changes
+  // Clear default tempo first, then add all from source
+  newMidi.header.tempos = [];
+  sourceMidi.header.tempos.forEach(tempo => {
+    newMidi.header.tempos.push({
+      bpm: tempo.bpm,
+      ticks: tempo.ticks
+    });
+  });
+  
+  // If no tempos in source, set default
+  if (newMidi.header.tempos.length === 0) {
+    newMidi.header.tempos.push({ bpm: 120, ticks: 0 });
+  }
+  
+  // Copy all time signatures
+  sourceMidi.header.timeSignatures.forEach(ts => {
+    newMidi.header.timeSignatures.push({
+      ticks: ts.ticks,
+      timeSignature: ts.timeSignature || [4, 4]
+    });
+  });
+  
+  // Copy key signatures if present
+  if (sourceMidi.header.keySignatures) {
+    sourceMidi.header.keySignatures.forEach(ks => {
+      newMidi.header.keySignatures.push({
+        key: ks.key,
+        scale: ks.scale,
+        ticks: ks.ticks
+      });
+    });
+  }
+  
+  // Update header to recalculate timing
+  newMidi.header.update();
+}
+
+/**
  * Create a new MIDI file containing only notes of a specific pitch
  * @param {Object} sourceMidi - Original parsed MIDI object
  * @param {number} midiNumber - MIDI note number to extract
@@ -18,21 +62,8 @@ export function splitByNote(sourceMidi, midiNumber) {
   // We'll work with the default PPQ and use time-based values
   const newMidi = new Midi();
   
-  // Set tempo (this uses the setTempo method which is allowed)
-  const firstTempo = sourceMidi.header.tempos[0]?.bpm || 120;
-  newMidi.header.setTempo(firstTempo);
-  
-  // Note: PPQ is read-only in @tonejs/midi, but time-based note placement
-  // works correctly regardless of PPQ differences
-  
-  // Add time signature if present
-  if (sourceMidi.header.timeSignatures.length > 0) {
-    const ts = sourceMidi.header.timeSignatures[0];
-    newMidi.header.timeSignatures.push({
-      ticks: 0,
-      timeSignature: ts.timeSignature || [4, 4]
-    });
-  }
+  // Copy all header info (tempos, time signatures, key signatures)
+  copyHeaderInfo(sourceMidi, newMidi);
   
   // Create a single track for the extracted notes
   const track = newMidi.addTrack();
@@ -69,18 +100,8 @@ export function combineNotes(sourceMidi, midiNumbers, name = 'Combined') {
   // Create new MIDI
   const newMidi = new Midi();
   
-  // Set tempo
-  const firstTempo = sourceMidi.header.tempos[0]?.bpm || 120;
-  newMidi.header.setTempo(firstTempo);
-  
-  // Add time signature if present
-  if (sourceMidi.header.timeSignatures.length > 0) {
-    const ts = sourceMidi.header.timeSignatures[0];
-    newMidi.header.timeSignatures.push({
-      ticks: 0,
-      timeSignature: ts.timeSignature || [4, 4]
-    });
-  }
+  // Copy all header info (tempos, time signatures, key signatures)
+  copyHeaderInfo(sourceMidi, newMidi);
   
   // Create a single track for the combined notes
   const track = newMidi.addTrack();
