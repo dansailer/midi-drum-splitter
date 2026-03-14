@@ -2,6 +2,8 @@
 
 A web application that splits MIDI drum tracks by note pitch. Perfect for separating multi-instrument drum MIDI files into individual tracks for each drum sound.
 
+**Why split drum MIDI?** Control each drum sound individually in your DAW - adjust timing, velocity, or apply different effects per instrument. Even better, assign different instrument sounds to each track: maybe that one kick pattern just sounds best on "Four on the Floor" while the rest of the kit uses a different plugin.
+
 ## Features
 
 - **Upload any MIDI file** - Drag & drop or click to browse (.mid and .midi supported)
