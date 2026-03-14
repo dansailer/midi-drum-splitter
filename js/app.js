@@ -77,7 +77,7 @@ async function handleFileSelected(file) {
   try {
     // Reset state for new file
     resetState();
-    state.fileName = file.name.replace(/\.mid$/i, '');
+    state.fileName = file.name.replace(/\.midi?$/i, '');
     
     // Show loading
     showLoading(state.elements.analysisTable, 'Parsing MIDI file...');

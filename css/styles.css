@@ -1,33 +1,33 @@
 /* MIDI Drum Splitter - Styles */
 
-/* CSS Variables */
+/* CSS Variables - Cool Professional Theme */
 :root {
-  --color-bg: #1a1a2e;
-  --color-bg-secondary: #16213e;
-  --color-bg-tertiary: #0f3460;
-  --color-primary: #e94560;
-  --color-primary-hover: #ff6b6b;
-  --color-secondary: #0f3460;
-  --color-accent: #00d9ff;
-  --color-text: #eaeaea;
-  --color-text-muted: #888;
-  --color-border: #333;
-  --color-success: #4caf50;
-  --color-error: #f44336;
+  --color-bg: #0f172a;
+  --color-bg-secondary: #1e293b;
+  --color-bg-tertiary: #334155;
+  --color-primary: #10b981;
+  --color-primary-hover: #34d399;
+  --color-secondary: #475569;
+  --color-accent: #10b981;
+  --color-text: #f1f5f9;
+  --color-text-muted: #94a3b8;
+  --color-border: #475569;
+  --color-success: #22c55e;
+  --color-error: #ef4444;
   
-  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-  --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
   
   --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
   
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.4);
   
-  --transition-fast: 150ms ease;
-  --transition-normal: 250ms ease;
+  --transition-fast: 120ms ease-out;
+  --transition-normal: 200ms ease-out;
 }
 
 /* Reset */
@@ -69,10 +69,11 @@ body {
 }
 
 .header h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: var(--color-primary);
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--color-text);
   margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
 }
 
 .subtitle {
@@ -94,10 +95,10 @@ body {
 }
 
 .section h2 {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
-  color: var(--color-accent);
+  color: var(--color-text);
 }
 
 .section-desc {
@@ -207,6 +208,7 @@ body {
 
 .analysis-table tbody tr {
   transition: background var(--transition-fast);
+  cursor: pointer;
 }
 
 .analysis-table tbody tr:hover {
@@ -214,7 +216,11 @@ body {
 }
 
 .analysis-table tbody tr.selected {
-  background: rgba(233, 69, 96, 0.1);
+  background: rgba(16, 185, 129, 0.15);
+}
+
+.analysis-table tbody tr.selected:hover {
+  background: rgba(16, 185, 129, 0.25);
 }
 
 .col-select {
@@ -308,7 +314,7 @@ input[type="checkbox"] {
 
 .group-name {
   font-weight: 600;
-  color: var(--color-accent);
+  color: var(--color-primary);
   min-width: 100px;
 }
 
@@ -376,13 +382,12 @@ input[type="checkbox"] {
 }
 
 .btn-accent {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  background: var(--color-primary);
   color: white;
 }
 
 .btn-accent:hover:not(:disabled) {
-  opacity: 0.9;
-  transform: translateY(-1px);
+  background: var(--color-primary-hover);
 }
 
 /* Loading */
@@ -471,7 +476,7 @@ input[type="checkbox"] {
 }
 
 .footer a {
-  color: var(--color-accent);
+  color: var(--color-primary);
   text-decoration: none;
 }
 

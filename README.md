@@ -4,11 +4,12 @@ A web application that splits MIDI drum tracks by note pitch. Perfect for separa
 
 ## Features
 
-- **Upload any MIDI file** - Drag & drop or click to browse
+- **Upload any MIDI file** - Drag & drop or click to browse (.mid and .midi supported)
 - **Automatic analysis** - Detects all unique note pitches with counts
 - **GM Drum names** - Shows General MIDI percussion names for notes 35-81
-- **Flexible grouping** - Combine multiple notes into logical groups (e.g., all hi-hat sounds)
-- **Batch export** - Download all split files as a ZIP archive
+- **Default grouping** - All GM drums pre-assigned to logical groups (kick, snare, hihat, etc.)
+- **Flexible grouping** - Customize groups or combine multiple notes
+- **Batch export** - Download individual files, groups only, or both as a ZIP archive
 - **100% offline** - Runs entirely in your browser, no server required
 
 ## Usage
@@ -17,17 +18,42 @@ A web application that splits MIDI drum tracks by note pitch. Perfect for separa
 
 1. **Open the app** - Visit the GitHub Pages URL or open `index.html` locally
 2. **Upload a MIDI file** - Drag & drop or click the upload area
-3. **Review the analysis** - See all detected notes with their counts
+3. **Review the analysis** - See all detected notes with their counts and default groups
 4. **Select notes to export** - Use checkboxes to include/exclude notes
-5. **Create groups (optional)** - Combine related notes (e.g., hi-hat variations)
-6. **Download** - Click "Download All (ZIP)" or "Download Groups (ZIP)"
+5. **Customize groups (optional)** - Edit group names to combine related notes
+6. **Download** - Choose from three export options:
+   - **Individual Notes** - One MIDI file per selected note
+   - **Groups Only** - One MIDI file per unique group
+   - **All (Organized)** - Both individual and grouped files in folders
 
 ### File Naming
 
 Split files are named using a combined format for clarity:
 - `{MIDI#}_{NoteName}_{DrumName}.mid`
-- Example: `36_C2_bass_drum_1.mid`
-- Example: `42_F#2_closed_hi_hat.mid`
+- Example: `36_c2_bass_drum_1.mid`
+- Example: `42_fsharp2_closed_hi_hat.mid`
+
+### Default Groups
+
+All GM percussion notes come pre-assigned to logical groups:
+
+| Group | Notes |
+|-------|-------|
+| kick | 35, 36 |
+| snare | 38, 40 |
+| hihat | 42, 44, 46 |
+| floortom | 41, 43 |
+| lowtom | 45 |
+| midtom | 47, 48 |
+| hightom | 50 |
+| cymbal1 | 49 |
+| cymbal2 | 57 |
+| ride1 | 51 |
+| ride2 | 59 |
+| ridebell | 53 |
+| china | 52 |
+| splash | 55 |
+| ... | (and more) |
 
 ### Grouping Notes
 
@@ -35,7 +61,7 @@ To combine multiple notes into a single MIDI file:
 
 1. In the analysis table, set the same group name for related notes
 2. For example, set notes 42, 44, and 46 to group "hihat"
-3. Click "Download Groups (ZIP)" to get combined files
+3. Click "Download Groups Only" or "Download All" to get combined files
 
 ## General MIDI Drum Map
 
@@ -66,11 +92,12 @@ No build step required! Simply:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/midi-drum-splitter.git
+git clone https://github.com/dansailer/midi-drum-splitter.git
 
-# Open in browser
+# Open in browser (macOS)
 open index.html
-# or
+
+# Or use a local server
 python -m http.server 8000
 # then visit http://localhost:8000
 ```

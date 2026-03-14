@@ -206,16 +206,16 @@ export const DEFAULT_DRUM_GROUPS = {
   48: 'midtom',     // Hi-Mid Tom
   
   // Crash Cymbals
-  49: 'crash',      // Crash Cymbal 1
-  57: 'crash',      // Crash Cymbal 2
+  49: 'cymbal1',    // Crash Cymbal 1
+  57: 'cymbal2',    // Crash Cymbal 2
   
   // High Tom
   50: 'hightom',    // High Tom
   
   // Ride Cymbals
-  51: 'ride',       // Ride Cymbal 1
-  53: 'ride',       // Ride Bell
-  59: 'ride',       // Ride Cymbal 2
+  51: 'ride1',      // Ride Cymbal 1
+  53: 'ridebell',   // Ride Bell
+  59: 'ride2',      // Ride Cymbal 2
   
   // Other Cymbals
   52: 'china',      // Chinese Cymbal

@@ -4,27 +4,28 @@ This document provides instructions for AI agents working on this codebase.
 
 ## Project Overview
 
-A client-side web application that splits MIDI drum tracks by note pitch. The app is designed to run offline as a GitHub Pages site with no build step required.
+A client-side web application that splits MIDI drum tracks by note pitch. The app runs offline as a GitHub Pages site with no build step required.
 
 ## Technology Stack
 
 - **Frontend**: Vanilla HTML, CSS, JavaScript (ES6 modules)
 - **MIDI Library**: @tonejs/midi (vendored in `/lib/Midi.js`)
 - **ZIP Library**: JSZip (vendored in `/lib/jszip.min.js`)
+- **Styling**: Custom CSS with CSS variables (slate/emerald theme)
 - **No build tools**: Direct browser execution
 
 ## Project Structure
 
 ```
 midi-drum-splitter/
-├── index.html           # Main entry point - loads all modules
+├── index.html           # Main entry point - loads libraries and app module
 ├── css/
-│   └── styles.css       # All styling
+│   └── styles.css       # All styling (CSS variables, responsive design)
 ├── js/
 │   ├── app.js           # Main app initialization and state management
 │   ├── midi-parser.js   # MIDI file parsing using @tonejs/midi
 │   ├── midi-splitter.js # Logic to split/combine MIDI by note
-│   ├── gm-drums.js      # General MIDI drum name mappings
+│   ├── gm-drums.js      # GM drum mappings and default groups
 │   ├── ui.js            # DOM manipulation and event handling
 │   └── export.js        # ZIP creation and file download
 ├── lib/
@@ -39,51 +40,103 @@ midi-drum-splitter/
 ## Key Files Explained
 
 ### js/app.js
-- Main application state (loaded MIDI, analysis results, groups)
-- Coordinates between UI, parser, and exporter
-- Entry point for the application
+- Main application state (loaded MIDI, analysis results, selections, groups)
+- Coordinates between UI, parser, splitter, and exporter
+- Handles file selection, download button clicks
+- Entry point initialized on DOMContentLoaded
 
 ### js/midi-parser.js
-- `parseMidi(arrayBuffer)` - Parse MIDI file into structured data
-- `analyzeNotes(midi)` - Extract unique notes with counts
+- `parseMidi(arrayBuffer)` - Parse MIDI file into @tonejs/midi object
+- `analyzeMidi(midi)` - Extract unique notes with counts, velocity stats
+- `getMidiInfo(midi)` - Get basic file info (duration, tracks, tempo)
+- `filterNotesByPitch(midi, midiNumbers)` - Filter notes by pitch
 
 ### js/midi-splitter.js
-- `splitByNote(midi, noteNumber)` - Create MIDI with only one note
-- `combineNotes(midi, noteNumbers)` - Create MIDI with multiple notes
-- Preserves tempo, time signature, and original timing
+- `splitByNote(midi, midiNumber)` - Create MIDI with only one note pitch
+- `combineNotes(midi, midiNumbers, name)` - Create MIDI with multiple notes
+- `splitAllNotes(midi, selectedNotes)` - Split into separate files per note
+- `splitByGroups(midi, groups)` - Split based on group assignments
+- `midiToArray(midi)` - Convert to Uint8Array for download
+- Note: Uses time-based note placement (PPQ is read-only in @tonejs/midi)
 
 ### js/gm-drums.js
-- `GM_DRUM_MAP` - Object mapping MIDI note numbers to drum names
-- `getNoteName(midiNumber)` - Convert MIDI number to note name (C4, D#5, etc.)
-- `getDrumName(midiNumber)` - Get GM percussion name or generic note name
+- `GM_DRUM_MAP` - MIDI notes 35-81 to GM percussion names
+- `GS_DRUM_MAP` - Roland GS extensions (27-34, 82-87)
+- `DEFAULT_DRUM_GROUPS` - Default group assignments for all GM drums
+- `getNoteName(midiNumber)` - Convert to note name (C4, D#5, etc.)
+- `getDrumName(midiNumber)` - Get percussion name
+- `getDefaultGroup(midiNumber)` - Get default group assignment
+- `generateNoteFilename(midiNumber)` - Create filename like `36_c2_bass_drum_1.mid`
+- `toSafeFilename(name)` - Sanitize strings for filenames
 
 ### js/ui.js
-- `initUI()` - Set up drag & drop, file input handlers
-- `renderAnalysis(analysis)` - Build the analysis table
-- `updateGroups(groups)` - Refresh group management UI
+- `initFileUpload(dropZone, fileInput, callback)` - Drag & drop and file input
+- `renderFileInfo(container, info)` - Display file metadata
+- `renderAnalysisTable(container, notes, state, callbacks)` - Build note table
+- `renderGroupsSummary(container, noteGroups, notes)` - Show group assignments
+- `updateExportButtons(buttons, state)` - Enable/disable based on selections
+- `showLoading/showError/showSuccess` - Toast notifications
+- Includes XSS protection via `escapeHtml()`
 
 ### js/export.js
-- `createZip(files)` - Bundle multiple MIDI files into ZIP
-- `downloadZip(zip, filename)` - Trigger browser download
-- `generateFilename(noteInfo)` - Create descriptive filenames
+- `createZip(files)` - Bundle MIDI files into ZIP blob
+- `downloadZip(files, zipName)` - Create and trigger ZIP download
+- `downloadMidi(midi, filename)` - Download single MIDI file
+- `createOrganizedZip(splitFiles, groups, groupFiles)` - ZIP with folders
+- `downloadOrganizedZip(...)` - Download organized ZIP
+
+## Default Group Assignments
+
+All GM percussion notes have default groups:
+
+| Group | MIDI Notes |
+|-------|------------|
+| kick | 35, 36 |
+| snare | 38, 40 |
+| sidestick | 37 |
+| clap | 39 |
+| hihat | 42, 44, 46 |
+| floortom | 41, 43 |
+| lowtom | 45 |
+| midtom | 47, 48 |
+| hightom | 50 |
+| cymbal1 | 49 |
+| cymbal2 | 57 |
+| ride1 | 51 |
+| ride2 | 59 |
+| ridebell | 53 |
+| china | 52 |
+| splash | 55 |
+| (etc.) | ... |
 
 ## Common Tasks
 
 ### Adding a new GM drum sound
-Edit `js/gm-drums.js` and add to the `GM_DRUM_MAP` object:
+Edit `js/gm-drums.js`:
 ```javascript
+// Add to GM_DRUM_MAP or GS_DRUM_MAP
 export const GM_DRUM_MAP = {
   // ... existing entries
-  82: 'Shaker',  // Add new entry
+  82: 'Shaker',
+};
+
+// Add default group
+export const DEFAULT_DRUM_GROUPS = {
+  // ... existing entries
+  82: 'shaker',
 };
 ```
 
 ### Modifying the file naming format
-Edit `js/export.js` in the `generateFilename` function:
-```javascript
-export function generateFilename(noteInfo) {
-  // Current format: 36_C2_bass_drum_1.mid
-  // Modify the template string as needed
+Edit `js/gm-drums.js` in the `generateNoteFilename` function.
+
+### Changing the color theme
+Edit CSS variables in `css/styles.css`:
+```css
+:root {
+  --color-bg: #0f172a;
+  --color-primary: #10b981;
+  /* etc. */
 }
 ```
 
@@ -91,17 +144,14 @@ export function generateFilename(noteInfo) {
 1. Add HTML to `index.html`
 2. Add styling to `css/styles.css`
 3. Add event handlers in `js/ui.js`
-
-### Changing MIDI processing
-- Parsing: `js/midi-parser.js`
-- Splitting/combining: `js/midi-splitter.js`
+4. Wire up in `js/app.js`
 
 ## Testing
 
 1. Open `index.html` in a browser (or use local server)
 2. Upload a MIDI file from `test/` directory
-3. Verify analysis table shows correct notes
-4. Test export functionality
+3. Verify analysis table shows correct notes with default groups
+4. Test all three export options
 
 For local development:
 ```bash
@@ -115,6 +165,7 @@ python -m http.server 8000
 2. **Vendored libraries** - Do not use CDN links; keep libraries in `/lib/`
 3. **Offline-first** - App must work without internet connection
 4. **GitHub Pages compatible** - No server-side processing
+5. **@tonejs/midi quirk** - `header.ppq` is read-only; use time-based note placement
 
 ## MIDI Technical Details
 
@@ -136,30 +187,34 @@ midi.tracks.forEach(track => {
     // note.time - Start time in seconds
     // note.duration - Duration in seconds
     // note.velocity - 0-1
-    // note.ticks - Start time in ticks
-    // note.durationTicks - Duration in ticks
   });
 });
 
 // Create new MIDI
 const newMidi = new Midi();
+newMidi.header.setTempo(120);  // Use setTempo, not direct assignment
 const track = newMidi.addTrack();
+track.channel = 9;  // Drum channel
 track.addNote({ midi: 36, time: 0, duration: 0.5, velocity: 0.8 });
 
 // Export to binary
-const arrayBuffer = newMidi.toArray();
+const uint8Array = newMidi.toArray();
 ```
 
 ## Troubleshooting
 
 ### "Midi is not defined"
-- Ensure `lib/Midi.js` is loaded before app scripts
+- Ensure `lib/Midi.js` is loaded before app scripts in index.html
 - Check browser console for 404 errors
 
 ### Notes not appearing in analysis
-- Check if MIDI file has multiple tracks
-- Verify channel numbers (drum channel is 9/10)
+- Check if MIDI file has multiple tracks (all tracks are processed)
+- Non-GM notes will show note name only (no drum name)
 
 ### ZIP download not working
 - Check JSZip is loaded correctly
 - Verify browser supports Blob downloads
+
+### Read-only property error
+- Don't assign to `midi.header.ppq` - it's read-only
+- Use `midi.header.setTempo()` for tempo changes

@@ -41,7 +41,7 @@ export function analyzeMidi(midi) {
           defaultGroup: getDefaultGroup(midiNumber),
           count: 0,
           tracks: new Set(),
-          minVelocity: 1,
+          minVelocity: Infinity,
           maxVelocity: 0,
           totalDuration: 0
         });

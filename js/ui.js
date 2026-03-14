@@ -40,7 +40,7 @@ export function initFileUpload(dropZone, fileInput, onFileSelected) {
     dropZone.classList.remove('dragover');
     
     const file = e.dataTransfer.files[0];
-    if (file && file.name.toLowerCase().endsWith('.mid')) {
+    if (file && /\.midi?$/i.test(file.name)) {
       onFileSelected(file);
     } else {
       showError('Please drop a MIDI file (.mid)');
