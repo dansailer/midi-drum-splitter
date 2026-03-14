@@ -57,6 +57,7 @@ function copyHeaderInfo(sourceMidi, newMidi) {
 
 /**
  * Create a new MIDI file containing only notes of a specific pitch
+ * The output file will have the same duration as the source MIDI for DAW alignment
  * @param {Object} sourceMidi - Original parsed MIDI object
  * @param {number} midiNumber - MIDI note number to extract
  * @returns {Object} New MIDI object with only the specified note
@@ -69,10 +70,21 @@ export function splitByNote(sourceMidi, midiNumber) {
   // Copy all header info (tempos, time signatures, key signatures)
   copyHeaderInfo(sourceMidi, newMidi);
   
+  // Calculate the end of track ticks to match original duration
+  // Scale from source PPQ to new PPQ
+  const sourcePPQ = sourceMidi.header.ppq;
+  const newPPQ = newMidi.header.ppq;
+  const tickScale = newPPQ / sourcePPQ;
+  const sourceDurationTicks = sourceMidi.durationTicks;
+  const newEndOfTrackTicks = Math.round(sourceDurationTicks * tickScale);
+  
   // Create a single track for the extracted notes
   const track = newMidi.addTrack();
   track.name = `Note ${midiNumber}`;
   track.channel = 9; // Drum channel (0-indexed, so 9 = channel 10)
+  
+  // Set end of track to match original MIDI duration
+  track.endOfTrackTicks = newEndOfTrackTicks;
   
   // Collect all notes matching the pitch from all source tracks
   sourceMidi.tracks.forEach(sourceTrack => {
@@ -93,6 +105,7 @@ export function splitByNote(sourceMidi, midiNumber) {
 
 /**
  * Create a new MIDI file containing multiple note pitches
+ * The output file will have the same duration as the source MIDI for DAW alignment
  * @param {Object} sourceMidi - Original parsed MIDI object
  * @param {number[]} midiNumbers - Array of MIDI note numbers to extract
  * @param {string} [name] - Optional name for the combined track
@@ -107,10 +120,20 @@ export function combineNotes(sourceMidi, midiNumbers, name = 'Combined') {
   // Copy all header info (tempos, time signatures, key signatures)
   copyHeaderInfo(sourceMidi, newMidi);
   
+  // Calculate the end of track ticks to match original duration
+  const sourcePPQ = sourceMidi.header.ppq;
+  const newPPQ = newMidi.header.ppq;
+  const tickScale = newPPQ / sourcePPQ;
+  const sourceDurationTicks = sourceMidi.durationTicks;
+  const newEndOfTrackTicks = Math.round(sourceDurationTicks * tickScale);
+  
   // Create a single track for the combined notes
   const track = newMidi.addTrack();
   track.name = name;
   track.channel = 9;
+  
+  // Set end of track to match original MIDI duration
+  track.endOfTrackTicks = newEndOfTrackTicks;
   
   // Collect all matching notes from all source tracks
   sourceMidi.tracks.forEach(sourceTrack => {
