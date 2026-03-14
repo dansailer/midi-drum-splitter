@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MIDI Drum Splitter</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <h1>MIDI Drum Splitter</h1>
+      <p class="subtitle">Split MIDI drum tracks by note pitch</p>
+    </header>
+
+    <main class="main">
+      <!-- Upload Section -->
+      <section class="section upload-section">
+        <div id="drop-zone" class="drop-zone">
+          <div class="drop-zone-content">
+            <svg class="drop-zone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <p class="drop-zone-text">Drop MIDI file here</p>
+            <p class="drop-zone-hint">or click to browse</p>
+          </div>
+          <input type="file" id="file-input" accept=".mid,.midi" hidden>
+        </div>
+      </section>
+
+      <!-- File Info Section -->
+      <section id="file-info" class="section file-info-section hidden">
+        <!-- Populated by JavaScript -->
+      </section>
+
+      <!-- Analysis Section -->
+      <section id="analysis-section" class="section hidden">
+        <h2>Note Analysis</h2>
+        <p class="section-desc">Select notes to export and assign group names to combine related notes.</p>
+        <div id="analysis-table" class="table-container">
+          <!-- Populated by JavaScript -->
+        </div>
+      </section>
+
+      <!-- Groups Section -->
+      <section id="groups-section" class="section hidden">
+        <h2>Groups</h2>
+        <p class="section-desc">Notes with the same group name will be combined into a single MIDI file.</p>
+        <div id="groups-summary" class="groups-container">
+          <!-- Populated by JavaScript -->
+        </div>
+      </section>
+
+      <!-- Export Section -->
+      <section id="export-section" class="section export-section hidden">
+        <h2>Export</h2>
+        <div class="export-buttons">
+          <button id="download-all" class="btn btn-primary" disabled>
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Download Individual Notes (ZIP)
+          </button>
+          <button id="download-groups" class="btn btn-secondary" disabled>
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Download Groups Only (ZIP)
+          </button>
+          <button id="download-both" class="btn btn-accent" disabled>
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Download All (Organized ZIP)
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>MIDI Drum Splitter - 100% offline, runs entirely in your browser</p>
+      <p><a href="https://github.com/dansailer/midi-drum-splitter" target="_blank">View on GitHub</a></p>
+    </footer>
+  </div>
+
+  <!-- Load libraries first (they set globals) -->
+  <script src="lib/Midi.js"></script>
+  <script src="lib/jszip.min.js"></script>
+  
+  <!-- Load app modules -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
