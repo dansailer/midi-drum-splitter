@@ -115,11 +115,26 @@ Group files use the group name:
 5. **No build step** - Plain ES6 modules, works directly in browser
 6. **Time-based note placement** - Works around @tonejs/midi read-only PPQ
 7. **Default groups for all GM drums** - No empty groups, sensible defaults
+8. **DAW-ready output** - All split files preserve original duration for perfect alignment
+9. **PPQ scaling** - Tempo/time signature tick values scaled proportionally when copying header info
+
+## Technical Solutions
+
+### PPQ Scaling
+The `@tonejs/midi` library always creates new MIDI objects with PPQ=480, but source files may have different PPQ values. When copying tempo events and time signatures, tick positions are scaled:
+
+```javascript
+newTicks = Math.round(sourceTicks * (targetPPQ / sourcePPQ))
+```
+
+### Duration Preservation
+All split files have the same duration as the original by adding a CC 121 (Reset All Controllers) event at the end time. This is necessary because @tonejs/midi ignores `endOfTrackTicks` during encoding. The CC event acts as an invisible marker that extends the track without affecting playback.
 
 ## Known Limitations
 
-- `@tonejs/midi` has read-only `header.ppq` - cannot copy exact PPQ from source
-- Time-based note placement works correctly regardless of PPQ differences
+- `@tonejs/midi` has read-only `header.ppq` - cannot set arbitrary PPQ values
+- New MIDI objects always have PPQ=480 (handled via tick scaling)
+- `@tonejs/midi` ignores `endOfTrackTicks` during encoding (handled via CC marker)
 
 ## Future Enhancements
 

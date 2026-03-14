@@ -9,6 +9,7 @@ A web application that splits MIDI drum tracks by note pitch. Perfect for separa
 - **GM Drum names** - Shows General MIDI percussion names for notes 35-81
 - **Default grouping** - All GM drums pre-assigned to logical groups (kick, snare, hihat, etc.)
 - **Flexible grouping** - Customize groups or combine multiple notes
+- **DAW-ready export** - All split files have the same duration as the original for perfect alignment
 - **Batch export** - Download individual files, groups only, or both as a ZIP archive
 - **100% offline** - Runs entirely in your browser, no server required
 
@@ -25,6 +26,16 @@ A web application that splits MIDI drum tracks by note pitch. Perfect for separa
    - **Individual Notes** - One MIDI file per selected note
    - **Groups Only** - One MIDI file per unique group
    - **All (Organized)** - Both individual and grouped files in folders
+
+### DAW Integration
+
+All exported MIDI files preserve:
+- **Original duration** - Every file has the same length as the source MIDI, so tracks align perfectly when imported into your DAW
+- **Tempo changes** - All tempo events are preserved at their correct positions
+- **Time signatures** - Time signature changes are maintained
+- **Note timing** - Notes remain at their exact original positions
+
+Simply drag all split files into your DAW and they'll line up perfectly, even if an instrument only plays once in the middle of the song.
 
 ### File Naming
 

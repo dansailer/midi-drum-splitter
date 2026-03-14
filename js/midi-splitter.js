@@ -56,6 +56,24 @@ function copyHeaderInfo(sourceMidi, newMidi) {
 }
 
 /**
+ * Ensure a track has the specified duration by adding a control change at the end.
+ * This is needed because @tonejs/midi doesn't use endOfTrackTicks when encoding.
+ * We use CC 121 (Reset All Controllers) with value 0 as an invisible marker.
+ * @param {Object} track - Track to extend
+ * @param {number} durationSeconds - Target duration in seconds
+ */
+function ensureTrackDuration(track, durationSeconds) {
+  // Add a control change at the end time to force the track length
+  // CC 121 (Reset All Controllers) with value 0 is effectively a no-op
+  // that won't affect playback but will extend the track
+  track.addCC({
+    number: 121,  // Reset All Controllers
+    time: durationSeconds,
+    value: 0
+  });
+}
+
+/**
  * Create a new MIDI file containing only notes of a specific pitch
  * The output file will have the same duration as the source MIDI for DAW alignment
  * @param {Object} sourceMidi - Original parsed MIDI object
@@ -70,21 +88,10 @@ export function splitByNote(sourceMidi, midiNumber) {
   // Copy all header info (tempos, time signatures, key signatures)
   copyHeaderInfo(sourceMidi, newMidi);
   
-  // Calculate the end of track ticks to match original duration
-  // Scale from source PPQ to new PPQ
-  const sourcePPQ = sourceMidi.header.ppq;
-  const newPPQ = newMidi.header.ppq;
-  const tickScale = newPPQ / sourcePPQ;
-  const sourceDurationTicks = sourceMidi.durationTicks;
-  const newEndOfTrackTicks = Math.round(sourceDurationTicks * tickScale);
-  
   // Create a single track for the extracted notes
   const track = newMidi.addTrack();
   track.name = `Note ${midiNumber}`;
   track.channel = 9; // Drum channel (0-indexed, so 9 = channel 10)
-  
-  // Set end of track to match original MIDI duration
-  track.endOfTrackTicks = newEndOfTrackTicks;
   
   // Collect all notes matching the pitch from all source tracks
   sourceMidi.tracks.forEach(sourceTrack => {
@@ -99,6 +106,10 @@ export function splitByNote(sourceMidi, midiNumber) {
       }
     });
   });
+  
+  // Ensure the track has the same duration as the source
+  // This adds a CC event at the end to force the track length
+  ensureTrackDuration(track, sourceMidi.duration);
   
   return newMidi;
 }
@@ -120,20 +131,10 @@ export function combineNotes(sourceMidi, midiNumbers, name = 'Combined') {
   // Copy all header info (tempos, time signatures, key signatures)
   copyHeaderInfo(sourceMidi, newMidi);
   
-  // Calculate the end of track ticks to match original duration
-  const sourcePPQ = sourceMidi.header.ppq;
-  const newPPQ = newMidi.header.ppq;
-  const tickScale = newPPQ / sourcePPQ;
-  const sourceDurationTicks = sourceMidi.durationTicks;
-  const newEndOfTrackTicks = Math.round(sourceDurationTicks * tickScale);
-  
   // Create a single track for the combined notes
   const track = newMidi.addTrack();
   track.name = name;
   track.channel = 9;
-  
-  // Set end of track to match original MIDI duration
-  track.endOfTrackTicks = newEndOfTrackTicks;
   
   // Collect all matching notes from all source tracks
   sourceMidi.tracks.forEach(sourceTrack => {
@@ -148,6 +149,10 @@ export function combineNotes(sourceMidi, midiNumbers, name = 'Combined') {
       }
     });
   });
+  
+  // Ensure the track has the same duration as the source
+  // This adds a CC event at the end to force the track length
+  ensureTrackDuration(track, sourceMidi.duration);
   
   return newMidi;
 }
